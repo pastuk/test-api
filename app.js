@@ -1,20 +1,31 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+// App dependents
+const path = require('path');
+const express = require('express');
+const mongoose = require('mongoose');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+mongoose.connect('mongodb://localhost:27017/sample-app', {
+  poolSize: 10,
+  ssl: false,
+  autoReconnect: true,
+  useNewUrlParser: true,
+  reconnectTries: 10,
+  reconnectInterval: 10000
+});
 
-var app = express();
+mongoose.Promise = global.Promise;
 
-app.use(logger('dev'));
+// Route modules
+const indexRouter = require('./routes/index');
+const profileRouter = require('./routes/profile');
+
+const publicDir = path.join(__dirname, 'public');
+const app = express();
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(publicDir));
 
+// Routes
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/profile', profileRouter);
 
 module.exports = app;
